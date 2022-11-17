@@ -1,13 +1,33 @@
 import React from 'react'
-import GoogleLogin from 'react-google-login'
+import jwt from 'jwt-decode'
+import {GoogleLogin} from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 import {FcGoogle} from 'react-icons/fc'
 import shareVideo from '../assets/share.mp4'
 import logo from '../assets/logowhite.png'
+import {client} from '../client'
 
 const Login = () => {
+    const navigate = useNavigate();
     const responseGoogle=(response)=>{
       console.log(response);
+      var profile=jwt(response.credential);
+console.log(profile);
+
+
+       localStorage.setItem('user',JSON.stringify(profile));
+       const name=profile.name;
+       const googleId= profile.sub;
+       const imageUrl= profile.picture;
+       const doc={
+      _id:googleId,
+      _type:'user',
+      userName:name,
+      image:imageUrl,
+    }
+    client.createIfNotExists(doc).then(
+      ()=>{navigate('/',{replace:true})}
+    )
     }
   return (
     <div className='flex justify-start items-center flex-col h-screen'>
